@@ -1,0 +1,22 @@
+fastapi==0.115.4
+uvicorn[standard]==0.32.0
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+
+# DB
+psycopg[binary]==3.2.3
+SQLAlchemy==2.0.36
+pgvector==0.3.6
+
+# Embeddings (run on CPU; small model)
+sentence-transformers==3.2.1
+torch==2.4.1
+numpy==1.26.4
+
+# LLM clients (pick what you use; both are small deps)
+anthropic==0.39.0
+boto3==1.35.49
+
+# Logging
+structlog==24.4.0

@@ -1,0 +1,32 @@
+# --- Core ---
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+
+# --- DB ---
+psycopg[binary]==3.2.3
+SQLAlchemy==2.0.36
+pgvector==0.3.6
+
+# --- Scraping ---
+playwright==1.48.0
+httpx==0.27.2
+beautifulsoup4==4.12.3
+tenacity==9.0.0
+
+# --- ML / embeddings ---
+sentence-transformers==3.2.1
+torch==2.4.1
+numpy==1.26.4
+
+# --- Datasets bootstrap ---
+datasets==3.0.1
+huggingface-hub==0.26.2
+
+# --- Logging / observability ---
+structlog==24.4.0
+prometheus-client==0.21.0
+
+# --- Test ---
+pytest==8.3.3
+pytest-asyncio==0.24.0
