@@ -26,7 +26,6 @@ RUN playwright install --with-deps chromium
 
 # Source
 COPY scraper /app/scraper
-COPY tests /app/tests
 
 # Runtime user (don't run as root)
 RUN useradd -ms /bin/bash app && chown -R app:app /app
