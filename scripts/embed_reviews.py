@@ -46,7 +46,7 @@ def _fetch_unembedded(batch_size: int) -> list[dict]:
           LEFT JOIN review_embeddings re ON re.review_id = r.review_id
          WHERE re.review_id IS NULL
            AND r.review_text IS NOT NULL
-           AND length(r.review_text) > 5
+           AND length(r.review_text) > 6
          LIMIT :n
     """
     with session_scope() as s:
