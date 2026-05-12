@@ -15,8 +15,11 @@ beautifulsoup4==4.12.3
 tenacity==9.0.0
 
 # --- ML / embeddings ---
+# CPU-only torch wheel (much smaller, no CUDA download) — perfect for laptops without a GPU.
+# This pulls torch from pytorch.org's CPU index instead of the default PyPI build.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.4.1+cpu
 sentence-transformers==3.2.1
-torch==2.4.1
 numpy==1.26.4
 
 # --- Datasets bootstrap ---

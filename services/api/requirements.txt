@@ -10,8 +10,10 @@ SQLAlchemy==2.0.36
 pgvector==0.3.6
 
 # Embeddings (run on CPU; small model)
+# CPU-only torch wheel (much smaller, no CUDA download) — perfect for laptops without a GPU.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.4.1+cpu
 sentence-transformers==3.2.1
-torch==2.4.1
 numpy==1.26.4
 
 # LLM clients (pick what you use; both are small deps)
