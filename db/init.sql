@@ -4,10 +4,11 @@
 -- It runs automatically on first container start (only).
 
 -- ─────────────────────────────────────────────────────────────────────
--- Extensions
+-- Extensions (must come BEFORE any tables/indexes that reference them)
 -- ─────────────────────────────────────────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";    -- gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS "vector";      -- pgvector (provided by pgvector/pgvector image)
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";     -- trigram fuzzy search (used by the reviews text index)
 
 -- ─────────────────────────────────────────────────────────────────────
 -- Schema layout
@@ -117,17 +118,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE INDEX IF NOT EXISTS idx_reviews_sku            ON reviews (sku_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_source_time    ON reviews (source, reviewed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_reviews_text_trgm      ON reviews USING GIN (review_text gin_trgm_ops);
-
--- (gin_trgm_ops needs pg_trgm; we'll create it lazily so it doesn't fail on minimal images)
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
-    CREATE EXTENSION IF NOT EXISTS pg_trgm;
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  -- ok, optional
-  NULL;
-END $$;
 
 -- ─────────────────────────────────────────────────────────────────────
 -- SILVER: review_embeddings (vector(384) for BGE-small)
