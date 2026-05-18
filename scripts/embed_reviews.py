@@ -69,6 +69,8 @@ def _insert_embeddings(rows: list[dict], vectors) -> int:
     return len(rows)
 
 
+
+
 def main() -> int:
     configure_logging()
     args = parse_args()
