@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     rag_rerank_top_n: int = 5
 
     # LLM
-    llm_provider: str = "anthropic"  # anthropic | bedrock | ollama
+    llm_provider: str = "ollama"  # anthropic | bedrock | ollama
     anthropic_api_key: str | None = None
     aws_region: str = "us-east-1"
     bedrock_model_id: str = "anthropic.claude-haiku-4-5-20251001-v1:0"

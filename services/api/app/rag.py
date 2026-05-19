@@ -40,7 +40,12 @@ def _embed_question(q: str) -> list[float]:
 
 
 def _retrieve(q_vec: list[float], brand: str | None, top_k: int) -> list[dict[str, Any]]:
-    """Top-K reviews by cosine similarity, with optional brand filter."""
+    """Top-K reviews by cosine similarity, with optional brand filter.
+
+    NOTE: parameters that may be NULL must be explicitly cast (CAST(:p AS TEXT))
+    so Postgres can infer their data type — otherwise we get
+    `AmbiguousParameter: could not determine data type` errors.
+    """
     sql = """
         SELECT
             r.review_id::text         AS review_id,
@@ -55,7 +60,7 @@ def _retrieve(q_vec: list[float], brand: str | None, top_k: int) -> list[dict[st
         JOIN reviews r ON r.review_id = re.review_id
         LEFT JOIN competitor_skus cs ON cs.sku_id = r.sku_id
         WHERE r.review_text IS NOT NULL
-          AND (:brand IS NULL OR LOWER(cs.raw_brand) = LOWER(:brand))
+          AND (CAST(:brand AS TEXT) IS NULL OR LOWER(cs.raw_brand) = LOWER(CAST(:brand AS TEXT)))
         ORDER BY re.embedding <=> CAST(:qvec AS vector)
         LIMIT :k
     """
