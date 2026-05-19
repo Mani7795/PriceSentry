@@ -1,7 +1,8 @@
 # PriceSentry — End-to-End Architecture
 
-This is the master architecture doc. It covers all three phases, the data flow, schema choices, the why-behind-the-tools, and the AWS free-tier.
+This is the master architecture doc. It covers all three phases (Crawl, Walk, Run), the data flow, schema choices, the why-behind-the-tools, and the AWS free-tier mapping you'll grow into.
 
+> **For absolute beginners:** I'll explain *why* each piece exists. Skip the asides if you already know.
 
 ---
 
@@ -82,7 +83,7 @@ The simplest possible version that exercises every concept end-to-end. Everythin
 
 ### Phase 1 components
 
-| Component | Role | Why this choice |
+| Component | Role | Why this choice (for a beginner) |
 |---|---|---|
 | **Postgres + pgvector** | OLTP + vector store, single DB | One database to learn well. pgvector is "good enough" up to ~1M vectors. |
 | **Playwright** | Browser automation for scraping | Handles JS-rendered pages; one library covers Chrome/Firefox/Webkit. |

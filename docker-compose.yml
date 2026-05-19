@@ -10,7 +10,10 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Phase 1 schema runs first (alphabetical order in this folder)
       - ./db/init.sql:/docker-entrypoint-initdb.d/00_init.sql:ro
+      # Phase 2 schema (users, conversations, messages, citations) runs second
+      - ./db/02_phase2_chat.sql:/docker-entrypoint-initdb.d/02_phase2_chat.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pricesentry}"]
       interval: 5s
@@ -32,7 +35,6 @@ services:
       - ./services/scraper:/app
       - ./scripts:/app/scripts:ro
       - ./tests:/app/tests:ro
-    # Stays running so we can `docker compose exec scraper ...`
     command: ["sleep", "infinity"]
 
   api:
@@ -51,6 +53,21 @@ services:
     volumes:
       - ./services/api:/app
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+    container_name: pricesentry-web
+    environment:
+      # In the browser, /api/v1/* is rewritten to the API by next.config.mjs
+      NEXT_PUBLIC_API_URL: http://api:8000
+      NODE_ENV: production
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
 
 volumes:
   pgdata:

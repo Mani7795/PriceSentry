@@ -46,7 +46,7 @@ def _fetch_unembedded(batch_size: int) -> list[dict]:
           LEFT JOIN review_embeddings re ON re.review_id = r.review_id
          WHERE re.review_id IS NULL
            AND r.review_text IS NOT NULL
-           AND length(r.review_text) > 6
+           AND length(r.review_text) > 5
          LIMIT :n
     """
     with session_scope() as s:
@@ -67,8 +67,6 @@ def _insert_embeddings(rows: list[dict], vectors) -> int:
                 {"rid": row["review_id"], "vec": str(vec.tolist()), "mv": settings.embedding_model},
             )
     return len(rows)
-
-
 
 
 def main() -> int:
