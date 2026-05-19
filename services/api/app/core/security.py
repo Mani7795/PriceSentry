@@ -6,25 +6,38 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.settings import settings
 
 
-# bcrypt is the safe default. Cost of 12 is the modern minimum.
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
+# bcrypt's max input is 72 BYTES (not chars). Truncating UTF-8 by byte length
+# is required for any string with multi-byte chars; we slice on bytes.
+_BCRYPT_MAX_BYTES = 72
+_BCRYPT_ROUNDS = 12   # work factor; 12 is the modern minimum
+
+
+def _to_bcrypt_bytes(plain: str) -> bytes:
+    """Encode + truncate at 72 bytes (bcrypt's hard limit)."""
+    return plain.encode("utf-8")[:_BCRYPT_MAX_BYTES]
 
 
 # ────────────────────────────────────────────────────────────────────────
 # Passwords
 # ────────────────────────────────────────────────────────────────────────
 def hash_password(plain: str) -> str:
-    return _pwd_context.hash(plain)
+    """Hash a plaintext password. Returns the hash string suitable for DB storage."""
+    salt = bcrypt.gensalt(rounds=_BCRYPT_ROUNDS)
+    return bcrypt.hashpw(_to_bcrypt_bytes(plain), salt).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return _pwd_context.verify(plain, hashed)
+    """Constant-time verification. Returns False on any malformed input."""
+    try:
+        return bcrypt.checkpw(_to_bcrypt_bytes(plain), hashed.encode("utf-8"))
+    except (ValueError, TypeError):
+        return False
 
 
 # ────────────────────────────────────────────────────────────────────────
