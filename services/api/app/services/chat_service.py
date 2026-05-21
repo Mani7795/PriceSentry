@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.settings import settings
 from app.db.models import Conversation, Message, MessageCitation
@@ -45,8 +46,14 @@ class ChatService:
         return conv
 
     async def list_messages(self, conv_id: uuid.UUID) -> list[Message]:
+        # Eager-load citations: async SQLAlchemy cannot lazy-load relationships
+        # implicitly, so we must fetch them up front or Pydantic serialization
+        # triggers a MissingGreenlet error.
         result = await self.db.execute(
-            select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at)
+            select(Message)
+            .where(Message.conversation_id == conv_id)
+            .options(selectinload(Message.citations))
+            .order_by(Message.created_at)
         )
         return list(result.scalars().all())
 
