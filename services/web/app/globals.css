@@ -13,17 +13,15 @@
   --color-accent: 16 185 129;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: 2 6 23;
-    --color-surface: 15 23 42;
-    --color-border: 30 41 59;
-    --color-muted: 148 163 184;
-    --color-text: 226 232 240;
-    --color-primary: 59 130 246;
-    --color-primary-fg: 255 255 255;
-    --color-accent: 16 185 129;
-  }
+.dark {
+  --color-bg: 2 6 23;
+  --color-surface: 15 23 42;
+  --color-border: 30 41 59;
+  --color-muted: 148 163 184;
+  --color-text: 226 232 240;
+  --color-primary: 59 130 246;
+  --color-primary-fg: 255 255 255;
+  --color-accent: 16 185 129;
 }
 
 html, body, #__next {

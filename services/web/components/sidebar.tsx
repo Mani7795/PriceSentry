@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Plus, MessageSquare } from "lucide-react";
+import { LogOut, Plus, MessageSquare, LayoutDashboard } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
@@ -30,7 +30,14 @@ export function Sidebar() {
         <div className="text-xs text-muted">Review intelligence</div>
       </div>
 
-      <div className="p-3">
+      <div className="p-3 space-y-2">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 w-full rounded-md border border-border py-2 px-3 text-sm text-muted hover:text-text hover:bg-bg"
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          Dashboard
+        </Link>
         <Link
           href="/chat"
           className="flex items-center justify-center gap-2 w-full rounded-md bg-primary text-primary-fg py-2 text-sm font-medium hover:opacity-90"

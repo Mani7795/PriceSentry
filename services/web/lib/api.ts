@@ -3,8 +3,13 @@
 
 import { useAuth } from "./auth";
 import type {
+  AIInsightResponse,
+  CatalogFacets,
+  CatalogQuery,
+  CatalogResponse,
   Conversation,
   Message,
+  ProductDetail,
   TokenResponse,
   User,
 } from "./types";
@@ -105,6 +110,28 @@ export const api = {
 
   async me() {
     return request<User>("/auth/me");
+  },
+
+  // ──────────────────────── Catalog (public) ────────────────────
+  async listProducts(query: CatalogQuery = {}) {
+    const params = new URLSearchParams();
+    Object.entries(query).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
+    });
+    const qs = params.toString();
+    return request<CatalogResponse>(`/products${qs ? `?${qs}` : ""}`);
+  },
+
+  async getFacets() {
+    return request<CatalogFacets>("/products/facets");
+  },
+
+  async getProduct(productId: string) {
+    return request<ProductDetail>(`/products/${productId}`);
+  },
+
+  async getProductInsights(productId: string) {
+    return request<AIInsightResponse>(`/products/${productId}/insights`, { method: "POST" });
   },
 
   // ──────────────────────── Conversations ───────────────────────
