@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import auth, chat, conversations, health
+from app.api import auth, chat, conversations, health, products
 from app.core.logging import configure_logging, get_logger
 from app.core.settings import settings
 
@@ -54,6 +54,7 @@ def create_app() -> FastAPI:
     prefix = settings.api_v1_prefix
     app.include_router(health.router)                              # /healthz, /readyz, /api/v1/stats
     app.include_router(auth.router, prefix=prefix)                 # /api/v1/auth/*
+    app.include_router(products.router, prefix=prefix)             # /api/v1/products/* (PUBLIC)
     app.include_router(conversations.router, prefix=prefix)        # /api/v1/conversations
     app.include_router(chat.router, prefix=prefix)                 # /api/v1/chat/stream
 

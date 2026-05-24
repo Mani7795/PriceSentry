@@ -216,3 +216,16 @@ def current_model_label() -> str:
         "openai": settings.openai_model,
         "bedrock": settings.bedrock_model_id,
     }.get(p, p)
+
+
+async def complete(system: str, user: str) -> str:
+    """Non-streaming convenience: collect a provider stream into one string.
+
+    Used by endpoints that return a single JSON payload (e.g. product AI
+    insights) rather than an SSE stream.
+    """
+    provider = get_provider()
+    parts: list[str] = []
+    async for chunk in provider.stream(system, [{"role": "user", "content": user}]):
+        parts.append(chunk)
+    return "".join(parts).strip()
