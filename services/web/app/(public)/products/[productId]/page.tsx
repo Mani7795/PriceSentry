@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
-import { formatNumber, formatPrice, productGradient } from "@/lib/format";
+import { ExternalLink } from "lucide-react";
+import { buildBuyUrl, formatNumber, formatPrice, productGradient, retailerLabel } from "@/lib/format";
 import { SentimentBadge } from "@/components/catalog/sentiment-badge";
 import { DealBadge } from "@/components/catalog/deal-badge";
 import { WatchButton } from "@/components/catalog/watch-button";
@@ -85,6 +86,27 @@ export default function ProductDetailPage() {
         <div className="rounded-xl border border-border bg-surface p-4">
           <h3 className="font-semibold text-sm mb-3">Competitor pricing</h3>
           <CompetitorPriceWidget prices={product.competitors} />
+
+          {/* Prominent buy CTA for the cheapest in-stock retailer */}
+          {(() => {
+            const cheapest =
+              product.competitors.find((c) => c.is_cheapest && c.url) ||
+              product.competitors.find((c) => c.url);
+            const href = cheapest ? buildBuyUrl(cheapest.url, cheapest.competitor) : null;
+            if (!cheapest || !href) return null;
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="nofollow sponsored noopener noreferrer"
+                className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-fg py-2.5 text-sm font-semibold hover:opacity-90"
+              >
+                Buy at {retailerLabel(cheapest.competitor)} · {formatPrice(cheapest.price_cents, cheapest.currency)}
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            );
+          })()}
+
           {product.min_price_cents != null && (
             <div className="mt-3 pt-3 border-t border-border text-xs text-muted">
               Range: {formatPrice(product.min_price_cents)} – {formatPrice(product.max_price_cents)}

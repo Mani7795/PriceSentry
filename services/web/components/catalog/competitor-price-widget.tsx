@@ -1,6 +1,6 @@
-import { ArrowDown, ArrowUp, Minus, Tag } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink, Minus, Tag } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { formatPrice, relativeTime, retailerLabel } from "@/lib/format";
+import { buildBuyUrl, formatPrice, relativeTime, retailerLabel } from "@/lib/format";
 import type { CompetitorPrice } from "@/lib/types";
 
 // Small colored chip standing in for a retailer logo (no external assets).
@@ -27,13 +27,10 @@ function RetailerChip({ competitor }: { competitor: string }) {
 
 export function CompetitorPriceRow({ price }: { price: CompetitorPrice }) {
   const diff = price.price_diff_pct;
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm",
-        price.is_cheapest ? "bg-emerald-50 dark:bg-emerald-950/30" : "bg-bg"
-      )}
-    >
+  const href = buildBuyUrl(price.url, price.competitor);
+
+  const inner = (
+    <>
       <RetailerChip competitor={price.competitor} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
@@ -50,7 +47,10 @@ export function CompetitorPriceRow({ price }: { price: CompetitorPrice }) {
         <div className="text-[11px] text-muted">{relativeTime(price.observed_at)}</div>
       </div>
       <div className="text-right">
-        <div className="font-semibold tabular-nums">{formatPrice(price.price_cents, price.currency)}</div>
+        <div className="font-semibold tabular-nums flex items-center justify-end gap-1">
+          {formatPrice(price.price_cents, price.currency)}
+          {href && <ExternalLink className="w-3 h-3 text-muted" />}
+        </div>
         {diff != null && diff !== 0 && (
           <div
             className={cn(
@@ -64,8 +64,31 @@ export function CompetitorPriceRow({ price }: { price: CompetitorPrice }) {
         )}
         {diff === 0 && <div className="text-[11px] text-muted flex items-center justify-end gap-0.5"><Minus className="w-3 h-3" /></div>}
       </div>
-    </div>
+    </>
   );
+
+  const className = cn(
+    "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
+    price.is_cheapest ? "bg-emerald-50 dark:bg-emerald-950/30" : "bg-bg",
+    href && "hover:bg-primary/5 cursor-pointer"
+  );
+
+  // When a retailer URL exists, the row links straight to that product page.
+  // rel="nofollow sponsored" is the correct attribute for affiliate/outbound links.
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="nofollow sponsored noopener noreferrer"
+        className={className}
+        title={`View on ${retailerLabel(price.competitor)}`}
+      >
+        {inner}
+      </a>
+    );
+  }
+  return <div className={className}>{inner}</div>;
 }
 
 export function CompetitorPriceWidget({ prices }: { prices: CompetitorPrice[] }) {

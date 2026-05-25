@@ -45,6 +45,30 @@ export function retailerLabel(key: string): string {
   return RETAILER_LABELS[key] || key;
 }
 
+// Affiliate tags per retailer. Fill these once you're approved into each
+// program (Amazon Associates, Chewy/Partnerize, Petco/PetSmart via Impact).
+// Leaving them blank just returns the plain retailer URL.
+const AFFILIATE_TAGS: Record<string, string> = {
+  amazon: "", // e.g. "yourtag-20"  -> appended as ?tag=yourtag-20
+  chewy: "",
+  petco: "",
+  petsmart: "",
+};
+
+// Build the outbound "buy" link. For Amazon, appends the associate tag if set.
+// Other retailers typically use network deep-links; drop those in here later.
+export function buildBuyUrl(url: string | null | undefined, competitor: string): string | null {
+  if (!url) return null;
+  const tag = AFFILIATE_TAGS[competitor];
+  try {
+    const u = new URL(url);
+    if (competitor === "amazon" && tag) u.searchParams.set("tag", tag);
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 // Deterministic placeholder image (no external assets needed).
 // Uses a category/brand-derived gradient seed.
 export function productGradient(seed: string): string {
