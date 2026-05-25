@@ -14,6 +14,7 @@ const SORTS = [
   { value: "reviews", label: "Most reviewed" },
   { value: "rating", label: "Highest rated" },
   { value: "sentiment", label: "Best sentiment" },
+  { value: "deals", label: "Best deals" },
   { value: "price_asc", label: "Price: low to high" },
   { value: "price_desc", label: "Price: high to low" },
 ];
@@ -24,8 +25,13 @@ const SENTIMENTS = [
   { value: "negative", label: "Negative" },
 ];
 
+const DEALS = [
+  { value: "great", label: "Great deal" },
+  { value: "good", label: "Good price" },
+];
+
 export function Filters({ facets, query, onChange }: Props) {
-  const hasFilters = !!(query.brand || query.category || query.pet_type || query.sentiment || query.q);
+  const hasFilters = !!(query.brand || query.category || query.pet_type || query.sentiment || query.deal || query.q);
 
   return (
     <div className="space-y-5">
@@ -53,6 +59,14 @@ export function Filters({ facets, query, onChange }: Props) {
           ))}
         </select>
       </div>
+
+      {/* Deals */}
+      <FacetGroup
+        title="Deals"
+        active={query.deal}
+        options={DEALS.map((s) => ({ value: s.value, label: s.label }))}
+        onPick={(v) => onChange({ deal: (query.deal === v ? undefined : (v as any)), page: 1 })}
+      />
 
       {/* Sentiment */}
       <FacetGroup
@@ -84,7 +98,7 @@ export function Filters({ facets, query, onChange }: Props) {
 
       {hasFilters && (
         <button
-          onClick={() => onChange({ q: "", brand: undefined, category: undefined, pet_type: undefined, sentiment: undefined, page: 1 })}
+          onClick={() => onChange({ q: "", brand: undefined, category: undefined, pet_type: undefined, sentiment: undefined, deal: undefined, page: 1 })}
           className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
         >
           <X className="w-3 h-3" /> Clear all filters

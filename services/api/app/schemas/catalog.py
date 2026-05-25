@@ -32,6 +32,10 @@ class ProductSummary(BaseModel):
     min_price_cents: int | None = None
     max_price_cents: int | None = None
     cheapest_competitor: str | None = None
+    # deal indicator (populated by the nightly job)
+    deal_label: str | None = None          # great | good | typical | high
+    deal_pct_rank: float | None = None     # 0..1
+    deal_current_cents: int | None = None
     competitors: list[CompetitorPrice] = []
 
 

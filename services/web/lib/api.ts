@@ -12,6 +12,7 @@ import type {
   ProductDetail,
   TokenResponse,
   User,
+  WatchItem,
 } from "./types";
 
 const BASE = "/api/v1";
@@ -132,6 +133,22 @@ export const api = {
 
   async getProductInsights(productId: string) {
     return request<AIInsightResponse>(`/products/${productId}/insights`, { method: "POST" });
+  },
+
+  // ──────────────────────── Watchlist (auth) ────────────────────
+  async listWatchlist() {
+    return request<WatchItem[]>("/watchlist");
+  },
+
+  async addToWatchlist(productId: string, targetPriceCents?: number | null) {
+    return request<WatchItem>("/watchlist", {
+      method: "POST",
+      body: JSON.stringify({ product_id: productId, target_price_cents: targetPriceCents ?? null }),
+    });
+  },
+
+  async removeFromWatchlist(productId: string) {
+    return request<void>(`/watchlist/${productId}`, { method: "DELETE" });
   },
 
   // ──────────────────────── Conversations ───────────────────────

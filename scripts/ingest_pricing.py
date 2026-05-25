@@ -46,8 +46,13 @@ RETAILER_PROFILE = {
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("--history-days", type=int, default=90)
-    p.add_argument("--limit", type=int, default=None, help="Max products to process")
+    p.add_argument("--history-days", type=int, default=90,
+                   help="Days of price history per product. Use 1 for current-price-only "
+                        "(fast, good for pricing the WHOLE catalog).")
+    p.add_argument("--limit", type=int, default=None, help="Max products to process (default: all in scope)")
+    p.add_argument("--scope", choices=["all", "reviewed"], default="all",
+                   help="all = every product (catalog comparison). "
+                        "reviewed = only products with reviews (good for full 90-day history).")
     p.add_argument("--seed", type=int, default=7)
     return p.parse_args()
 
@@ -119,14 +124,28 @@ def main() -> int:
     rng = random.Random(args.seed)
 
     with session_scope() as session:
-        prod_rows = session.execute(
-            text("""
+        if args.scope == "reviewed":
+            # Only products with reviews, ordered by review count.
+            sql = """
+                SELECT cs.product_id::text AS pid
+                  FROM competitor_skus cs
+                  JOIN reviews r ON r.sku_id = cs.sku_id
+                 WHERE cs.product_id IS NOT NULL
+                 GROUP BY cs.product_id
+                 ORDER BY COUNT(r.review_id) DESC
+                 LIMIT :lim
+            """
+        else:
+            # Every product in the catalog (so the dashboard can compare all of them).
+            sql = """
                 SELECT DISTINCT cs.product_id::text AS pid
                   FROM competitor_skus cs
                  WHERE cs.product_id IS NOT NULL
                  LIMIT :lim
-            """),
-            {"lim": args.limit or 100000},
+            """
+        # When --limit omitted, process everything in scope.
+        prod_rows = session.execute(
+            text(sql), {"lim": args.limit if args.limit is not None else 10_000_000},
         ).all()
         product_ids = [r.pid for r in prod_rows]
 

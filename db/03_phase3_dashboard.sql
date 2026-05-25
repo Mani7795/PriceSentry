@@ -104,9 +104,14 @@ SELECT
   p.category,
   p.pet_type,
   p.attributes,
-  COALESCE(rs.review_count, 0)        AS review_count,
-  rs.avg_rating,
-  rs.avg_sentiment,
+  -- review_count: actual review rows, else the Amazon metadata rating_number, else 0
+  COALESCE(rs.review_count,
+           NULLIF(p.attributes->>'rating_number', '')::int,
+           0)                          AS review_count,
+  -- avg_rating: from our reviews if present, else the Amazon metadata average_rating
+  COALESCE(rs.avg_rating,
+           NULLIF(p.attributes->>'average_rating', '')::real) AS avg_rating,
+  rs.avg_sentiment,                    -- only from real review text; NULL if none
   rs.pct_positive,
   ps.competitor_count,
   ps.min_price_cents,

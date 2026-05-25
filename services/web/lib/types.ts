@@ -66,7 +66,20 @@ export interface ProductSummary {
   min_price_cents: number | null;
   max_price_cents: number | null;
   cheapest_competitor: string | null;
+  deal_label: "great" | "good" | "typical" | "high" | null;
+  deal_pct_rank: number | null;
+  deal_current_cents: number | null;
   competitors: CompetitorPrice[];
+}
+
+export interface WatchItem {
+  watch_id: string;
+  product_id: string;
+  title: string | null;
+  target_price_cents: number | null;
+  current_cents: number | null;
+  deal_label: string | null;
+  created_at: string;
 }
 
 export interface CatalogResponse {
@@ -136,6 +149,7 @@ export interface CatalogQuery {
   category?: string;
   pet_type?: string;
   sentiment?: "positive" | "neutral" | "negative";
+  deal?: "great" | "good" | "typical" | "high";
   min_price_cents?: number;
   max_price_cents?: number;
   sort?: string;

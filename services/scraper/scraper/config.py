@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     embedding_dim: int = 384
     embedding_batch_size: int = 64
 
+    # Celery / background jobs
+    celery_broker_url: str = "redis://redis:6379/0"
+    celery_result_backend: str = "redis://redis:6379/1"
+
     # Logging
     log_level: str = "INFO"
 

@@ -38,6 +38,7 @@ async def list_products(
     category: str | None = None,
     pet_type: str | None = None,
     sentiment: str | None = Query(default=None, pattern="^(positive|neutral|negative)$"),
+    deal: str | None = Query(default=None, pattern="^(great|good|typical|high)$"),
     min_price_cents: int | None = Query(default=None, ge=0),
     max_price_cents: int | None = Query(default=None, ge=0),
     sort: str = Query(default="reviews"),
@@ -47,7 +48,7 @@ async def list_products(
 ) -> CatalogResponse:
     total, items = await CatalogService(db).list_products(
         q=q, brand=brand, category=category, pet_type=pet_type, sentiment=sentiment,
-        min_price_cents=min_price_cents, max_price_cents=max_price_cents,
+        deal=deal, min_price_cents=min_price_cents, max_price_cents=max_price_cents,
         sort=sort, page=page, page_size=page_size,
     )
     return CatalogResponse(

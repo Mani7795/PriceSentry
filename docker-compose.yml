@@ -20,6 +20,17 @@ services:
       timeout: 3s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: pricesentry-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   scraper:
     build:
       context: ./services/scraper
@@ -28,6 +39,8 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-pricesentry}:${POSTGRES_PASSWORD:-pricesentry_dev}@postgres:5432/${POSTGRES_DB:-pricesentry}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,6 +49,44 @@ services:
       - ./scripts:/app/scripts:ro
       - ./tests:/app/tests:ro
     command: ["sleep", "infinity"]
+
+  worker:
+    build:
+      context: ./services/scraper
+      dockerfile: Dockerfile
+    container_name: pricesentry-worker
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-pricesentry}:${POSTGRES_PASSWORD:-pricesentry_dev}@postgres:5432/${POSTGRES_DB:-pricesentry}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/scraper:/app
+      - ./scripts:/app/scripts:ro
+    command: ["celery", "-A", "scraper.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
+
+  beat:
+    build:
+      context: ./services/scraper
+      dockerfile: Dockerfile
+    container_name: pricesentry-beat
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-pricesentry}:${POSTGRES_PASSWORD:-pricesentry_dev}@postgres:5432/${POSTGRES_DB:-pricesentry}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/scraper:/app
+      - ./scripts:/app/scripts:ro
+    command: ["celery", "-A", "scraper.celery_app", "beat", "--loglevel=info"]
 
   api:
     build:

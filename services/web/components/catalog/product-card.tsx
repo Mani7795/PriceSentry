@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { formatNumber, productGradient } from "@/lib/format";
 import type { ProductSummary } from "@/lib/types";
 import { SentimentBadge } from "./sentiment-badge";
+import { DealBadge } from "./deal-badge";
 import { CompetitorPriceWidget } from "./competitor-price-widget";
 
 export function ProductCard({ product, index = 0 }: { product: ProductSummary; index?: number }) {
@@ -24,8 +25,9 @@ export function ProductCard({ product, index = 0 }: { product: ProductSummary; i
           className="h-32 w-full relative"
           style={{ background: productGradient(product.brand || product.title) }}
         >
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
             <SentimentBadge score={product.avg_sentiment} />
+            <DealBadge label={product.deal_label} />
           </div>
           {product.cheapest_competitor && (
             <div className="absolute bottom-2 right-2 bg-black/40 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur">

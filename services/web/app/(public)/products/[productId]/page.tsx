@@ -7,6 +7,8 @@ import { ArrowLeft, Star, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
 import { formatNumber, formatPrice, productGradient } from "@/lib/format";
 import { SentimentBadge } from "@/components/catalog/sentiment-badge";
+import { DealBadge } from "@/components/catalog/deal-badge";
+import { WatchButton } from "@/components/catalog/watch-button";
 import { CompetitorPriceWidget } from "@/components/catalog/competitor-price-widget";
 import { PriceChart } from "@/components/catalog/price-chart";
 import { SentimentPanel } from "@/components/catalog/sentiment-panel";
@@ -70,8 +72,10 @@ export default function ProductDetailPage() {
                 <span>{formatNumber(product.review_count)} reviews</span>
                 {product.category && <span className="capitalize">{product.category}</span>}
               </div>
-              <div className="mt-3">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <SentimentBadge score={product.avg_sentiment} size="md" showScore />
+                <DealBadge label={product.deal_label} size="md" />
+                <WatchButton productId={productId} currentCents={product.deal_current_cents ?? product.min_price_cents} />
               </div>
             </div>
           </div>

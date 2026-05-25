@@ -21,9 +21,10 @@ class CatalogService:
         category: str | None,
         pet_type: str | None,
         sentiment: str | None,         # positive|neutral|negative
+        deal: str | None,              # great|good|typical|high
         min_price_cents: int | None,
         max_price_cents: int | None,
-        sort: str,                     # 'reviews'|'rating'|'sentiment'|'price_asc'|'price_desc'
+        sort: str,                     # 'reviews'|'rating'|'sentiment'|'price_asc'|'price_desc'|'deals'
         page: int,
         page_size: int,
     ) -> tuple[int, list[dict[str, Any]]]:
@@ -48,14 +49,18 @@ class CatalogService:
             filters.append("d.avg_sentiment <= -0.05")
         elif sentiment == "neutral":
             filters.append("d.avg_sentiment > -0.05 AND d.avg_sentiment < 0.05")
+        if deal in ("great", "good", "typical", "high"):
+            filters.append("d.deal_label = :deal")
+            params["deal"] = deal
         if min_price_cents is not None:
             filters.append("d.min_price_cents >= :minp")
             params["minp"] = min_price_cents
         if max_price_cents is not None:
             filters.append("d.min_price_cents <= :maxp")
             params["maxp"] = max_price_cents
-        # Only show products that have at least one review (keeps the dashboard meaningful)
-        filters.append("d.review_count > 0")
+        # NOTE: we intentionally do NOT require reviews — the full catalog is
+        # browsable and comparable by price + rating. Sentiment simply shows
+        # as "neutral"/absent for products without review text.
 
         where = " AND ".join(filters)
 
@@ -65,6 +70,7 @@ class CatalogService:
             "sentiment": "d.avg_sentiment DESC NULLS LAST",
             "price_asc": "d.min_price_cents ASC NULLS LAST",
             "price_desc": "d.min_price_cents DESC NULLS LAST",
+            "deals": "d.deal_pct_rank ASC NULLS LAST",   # best deals first
         }.get(sort, "d.review_count DESC NULLS LAST")
 
         total = int(await self.db.scalar(
@@ -128,7 +134,7 @@ class CatalogService:
                 text(f"""
                     SELECT {col} AS value, COUNT(*) AS count
                       FROM v_product_dashboard
-                     WHERE {col} IS NOT NULL AND review_count > 0
+                     WHERE {col} IS NOT NULL
                      GROUP BY {col}
                      ORDER BY count DESC
                      LIMIT 30

@@ -29,6 +29,10 @@ huggingface-hub==0.26.2
 # --- Sentiment (real, CPU-friendly) ---
 vaderSentiment==3.3.2
 
+# --- Background jobs ---
+celery==5.4.0
+redis==5.2.0
+
 # --- Logging / observability ---
 structlog==24.4.0
 prometheus-client==0.21.0
