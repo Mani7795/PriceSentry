@@ -69,6 +69,7 @@ export interface ProductSummary {
   deal_label: "great" | "good" | "typical" | "high" | null;
   deal_pct_rank: number | null;
   deal_current_cents: number | null;
+  image_url: string | null;
   competitors: CompetitorPrice[];
 }
 

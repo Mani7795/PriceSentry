@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Star, TrendingUp } from "lucide-react";
+import { ArrowLeft, ExternalLink, Star, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
-import { ExternalLink } from "lucide-react";
-import { buildBuyUrl, formatNumber, formatPrice, productGradient, retailerLabel } from "@/lib/format";
+import { buildBuyUrl, formatNumber, formatPrice, retailerLabel } from "@/lib/format";
 import { SentimentBadge } from "@/components/catalog/sentiment-badge";
 import { DealBadge } from "@/components/catalog/deal-badge";
 import { WatchButton } from "@/components/catalog/watch-button";
+import { ProductImage } from "@/components/catalog/product-image";
 import { CompetitorPriceWidget } from "@/components/catalog/competitor-price-widget";
 import { PriceChart } from "@/components/catalog/price-chart";
 import { SentimentPanel } from "@/components/catalog/sentiment-panel";
@@ -56,9 +56,12 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <div className="flex gap-4">
-            <div
-              className="w-40 h-40 rounded-xl shrink-0"
-              style={{ background: productGradient(product.brand || product.title) }}
+            <ProductImage
+              src={product.image_url}
+              seed={product.brand || product.title}
+              alt={product.title}
+              className="w-40 h-40 shrink-0 border border-border"
+              rounded="rounded-xl"
             />
             <div className="min-w-0">
               <div className="text-sm text-muted">{product.brand || "Unknown brand"}</div>
