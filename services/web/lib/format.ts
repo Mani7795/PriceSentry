@@ -35,24 +35,39 @@ export function sentimentLabel(score: number | null | undefined): "positive" | "
 }
 
 const RETAILER_LABELS: Record<string, string> = {
-  amazon: "Amazon",
-  chewy: "Chewy",
-  petco: "Petco",
-  petsmart: "PetSmart",
+  amazon: "Amazon AU",
+  petbarn: "Petbarn",
+  petzoo: "PetZoo",
+  vetproductsdirect: "Vet Products Direct",
   demo: "Demo",
 };
 export function retailerLabel(key: string): string {
   return RETAILER_LABELS[key] || key;
 }
 
+// Short tag for the retailer chip (2-3 letters max).
+const RETAILER_ABBR: Record<string, string> = {
+  amazon: "AM",
+  petbarn: "PB",
+  petzoo: "PZ",
+  vetproductsdirect: "VPD",
+  demo: "DE",
+};
+export function retailerAbbr(key: string): string {
+  return RETAILER_ABBR[key] || key.slice(0, 2).toUpperCase();
+}
+
 // Affiliate tags per retailer. Fill these once you're approved into each
-// program (Amazon Associates, Chewy/Partnerize, Petco/PetSmart via Impact).
+// program. AU programs:
+//   - Amazon AU Associates (e.g. yourtag-22)
+//   - Petbarn affiliate (Commission Factory or similar)
+//   - VetProductsDirect/PetZoo via Commission Factory / Impact
 // Leaving them blank just returns the plain retailer URL.
 const AFFILIATE_TAGS: Record<string, string> = {
-  amazon: "", // e.g. "yourtag-20"  -> appended as ?tag=yourtag-20
-  chewy: "",
-  petco: "",
-  petsmart: "",
+  amazon: "", // e.g. "yourtag-22" for Amazon AU  -> appended as ?tag=...
+  petbarn: "",
+  petzoo: "",
+  vetproductsdirect: "",
 };
 
 // Build the outbound "buy" link. For Amazon, appends the associate tag if set.

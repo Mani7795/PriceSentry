@@ -32,15 +32,20 @@ from scraper.logging_setup import configure_logging, get_logger  # noqa: E402
 
 log = get_logger("pricing")
 
-RETAILERS = ["amazon", "chewy", "petco", "petsmart"]
+RETAILERS = ["amazon", "petbarn", "petzoo", "vetproductsdirect"]
 
-# Each retailer's typical position vs the base price (multiplier) + volatility.
-# Derived from common market structure: Chewy slightly under Amazon, Petco/PetSmart above.
+# Each retailer's typical position vs the base price (multiplier) + volatility,
+# plus a URL template used when minting placeholder SKUs. The {pid} placeholder
+# is substituted with the product_id's first 8 chars.
 RETAILER_PROFILE = {
-    "amazon":   {"mult": 1.00, "vol": 0.04},
-    "chewy":    {"mult": 0.97, "vol": 0.05},
-    "petco":    {"mult": 1.06, "vol": 0.06},
-    "petsmart": {"mult": 1.08, "vol": 0.07},
+    "amazon":            {"mult": 1.00, "vol": 0.04,
+                          "url_tmpl": "https://www.amazon.com.au/dp/{pid}"},
+    "petbarn":           {"mult": 1.05, "vol": 0.05,
+                          "url_tmpl": "https://www.petbarn.com.au/p/{pid}"},
+    "petzoo":            {"mult": 1.03, "vol": 0.06,
+                          "url_tmpl": "https://www.petzoo.com.au/p/{pid}"},
+    "vetproductsdirect": {"mult": 1.08, "vol": 0.07,
+                          "url_tmpl": "https://www.vetproductsdirect.com.au/p/{pid}"},
 }
 
 
@@ -81,6 +86,9 @@ def _ensure_sku(session, product_id: str, competitor: str) -> str:
     ).first()
     if row:
         return str(row.sku_id)
+    url_tmpl = RETAILER_PROFILE.get(competitor, {}).get(
+        "url_tmpl", "https://example.com/{pid}"
+    )
     row = session.execute(
         text("""
             INSERT INTO competitor_skus (product_id, competitor, external_id, url, raw_title)
@@ -92,7 +100,7 @@ def _ensure_sku(session, product_id: str, competitor: str) -> str:
             "pid": product_id,
             "c": competitor,
             "ext": f"{competitor}-{product_id[:8]}",
-            "url": f"https://www.{competitor}.com/p/{product_id[:8]}",
+            "url": url_tmpl.format(pid=product_id[:8]),
             "title": None,
         },
     ).first()
@@ -148,7 +156,7 @@ def main() -> int:
             text(sql), {"lim": args.limit if args.limit is not None else 10_000_000},
         ).all()
         product_ids = [r.pid for r in prod_rows]
-
+# abcd
     log.info("pricing.start", products=len(product_ids), days=args.history_days)
     processed = 0
     total_obs = 0

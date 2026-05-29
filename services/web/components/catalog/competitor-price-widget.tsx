@@ -1,15 +1,15 @@
 import { ArrowDown, ArrowUp, ExternalLink, Minus, Tag } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { buildBuyUrl, formatPrice, relativeTime, retailerLabel } from "@/lib/format";
+import { buildBuyUrl, formatPrice, relativeTime, retailerAbbr, retailerLabel } from "@/lib/format";
 import type { CompetitorPrice } from "@/lib/types";
 
 // Small colored chip standing in for a retailer logo (no external assets).
 function RetailerChip({ competitor }: { competitor: string }) {
   const colors: Record<string, string> = {
     amazon: "bg-[#FF9900] text-black",
-    chewy: "bg-[#1C49C2] text-white",
-    petco: "bg-[#0033A0] text-white",
-    petsmart: "bg-[#E4002B] text-white",
+    petbarn: "bg-[#E55934] text-white",          // Petbarn warm red-orange
+    petzoo: "bg-[#7C3AED] text-white",           // distinct violet
+    vetproductsdirect: "bg-[#0D9488] text-white", // teal
     demo: "bg-slate-500 text-white",
   };
   return (
@@ -20,7 +20,7 @@ function RetailerChip({ competitor }: { competitor: string }) {
       )}
       title={retailerLabel(competitor)}
     >
-      {retailerLabel(competitor).slice(0, 2)}
+      {retailerAbbr(competitor)}
     </span>
   );
 }

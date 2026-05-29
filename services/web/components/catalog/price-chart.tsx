@@ -16,9 +16,9 @@ import { retailerLabel } from "@/lib/format";
 
 const RETAILER_COLORS: Record<string, string> = {
   amazon: "#FF9900",
-  chewy: "#1C49C2",
-  petco: "#2563eb",
-  petsmart: "#E4002B",
+  petbarn: "#E55934",
+  petzoo: "#7C3AED",
+  vetproductsdirect: "#0D9488",
   demo: "#64748b",
 };
 
